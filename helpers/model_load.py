@@ -174,7 +174,7 @@ def load_model(root, load_on_run_all=True, check_sha256=True, map_location="cuda
             'requires_login': False,
             },
         "lexica-aperture-v3-5": {
-            'sha256': '4afab9126057859b34d13d6207d90221d0b017b7580469ea70cee37757a29edd',
+            'sha256': '7c72418d6a51f5c752d00faa53c014f52fe0ea2f2dda1661620a50dffa96d0f9',
             'url': 'https://huggingface.co/openskyml/lexica-aperture-v3-5/blob/main/Lexica-Aperture-V3.5.ckpt',
             'requires_login': False,
             },
