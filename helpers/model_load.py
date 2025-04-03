@@ -115,7 +115,7 @@ def load_model(root, load_on_run_all=True, check_sha256=True, map_location="cuda
             },
         "v1-5-pruned.ckpt": {
             'sha256': 'e1441589a6f3c5a53f5f54d0975a18a7feb7cdf0b0dee276dfc3331ae376a053',
-            'url': 'https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned.ckpt',
+            'url': 'https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5/blob/main/v1-5-pruned.ckpt',
             'requires_login': False,
             },
         "v1-5-pruned-emaonly.ckpt": {
@@ -221,31 +221,38 @@ def load_model(root, load_on_run_all=True, check_sha256=True, map_location="cuda
             print("..could not verify model integrity")
 
     def load_model_from_config(config, ckpt, verbose=False, device='cuda', print_flag=False, map_location="cuda"):
-        print(f"..loading model")
-        _ , extension = os.path.splitext(ckpt)
+        print("..loading model")
+        
+        if not os.path.exists(ckpt):
+            raise FileNotFoundError(f"Checkpoint file not found: {ckpt}")
+
+        _, extension = os.path.splitext(ckpt)
+        
         if extension.lower() == ".safetensors":
             import safetensors.torch
             pl_sd = safetensors.torch.load_file(ckpt, device=map_location)
         else:
             pl_sd = torch.load(ckpt, map_location=map_location)
-        try:
-            sd = pl_sd["state_dict"]
-        except:
-            sd = pl_sd
+
+        # Kiểm tra state_dict trong checkpoint
+        sd = pl_sd["state_dict"] if "state_dict" in pl_sd else pl_sd
+
         torch.set_default_dtype(torch.float16)
+        print("Model config:", config.model)  # Debug
         model = instantiate_from_config(config.model)
         torch.set_default_dtype(torch.float32)
+
         m, u = model.load_state_dict(sd, strict=False)
+
         if print_flag:
             if len(m) > 0 and verbose:
-                print("missing keys:")
-                print(m)
+                print("Missing keys:", m)
             if len(u) > 0 and verbose:
-                print("unexpected keys:")
-                print(u)
+                print("Unexpected keys:", u)
 
         model = model.half().to(device)
         model.eval()
+
         return model
 
     if load_on_run_all and ckpt_valid:
