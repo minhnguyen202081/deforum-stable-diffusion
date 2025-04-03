@@ -216,6 +216,12 @@ def load_model(root, load_on_run_all=True, check_sha256=True, map_location="cuda
             'url': 'https://huggingface.co/openskyml/lexica-aperture-v3-5/resolve/main/Lexica-Aperture-V3.5.ckpt',
             'requires_login': True,
             },
+        "Realistic_Vision_V5.1.ckpt": {
+            'sha256': '089b46befc94f7fd90e9c3f0a04346497703c161d079921d8d671a92c7557633',
+            'url': 'https://huggingface.co/SG161222/Realistic_Vision_V5.1_noVAE/resolve/main/Realistic_Vision_V5.1.ckpt',
+            'requires_login': False,
+            },
+
     }
 
     # config path
