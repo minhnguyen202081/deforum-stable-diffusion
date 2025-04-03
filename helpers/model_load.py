@@ -173,6 +173,11 @@ def load_model(root, load_on_run_all=True, check_sha256=True, map_location="cuda
             'url': 'https://huggingface.co/hakurei/waifu-diffusion-v1-3/resolve/main/wd-v1-3-float16.ckpt',
             'requires_login': False,
             },
+        "lexica-aperture-v3-5": {
+            'sha256': '4afab9126057859b34d13d6207d90221d0b017b7580469ea70cee37757a29edd',
+            'url': 'https://huggingface.co/openskyml/lexica-aperture-v3-5/blob/main/Lexica-Aperture-V3.5.ckpt',
+            'requires_login': False,
+            },
     }
 
     # config path
