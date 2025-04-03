@@ -29,8 +29,44 @@ def make_linear_decode(model_version, device='cuda:0'):
     return linear_decode
 
 
-def download_model(model_map,root):
+# def download_model(model_map,root):
     
+#     url = model_map[root.model_checkpoint]['url']
+
+#     # CLI dialogue to authenticate download
+#     if model_map[root.model_checkpoint]['requires_login']:
+#         print("This model requires an authentication token")
+#         print("Please ensure you have accepted the terms of service before continuing.")
+
+#         username = input("[What is your huggingface username?]: ")
+#         token = input("[What is your huggingface token?]: ")
+
+#         _, path = url.split("https://")
+
+#         url = f"https://{username}:{token}@{path}"
+
+#     # contact server for model
+#     print(f"..attempting to download {root.model_checkpoint}...this may take a while")
+#     ckpt_request = requests.get(url,stream=True)
+#     request_status = ckpt_request.status_code
+
+#     # inform user of errors
+#     if request_status == 403:
+#         raise ConnectionRefusedError("You have not accepted the license for this model.")
+#     elif request_status == 404:
+#         raise ConnectionError("Could not make contact with server")
+#     elif request_status != 200:
+#         raise ConnectionError(f"Some other error has ocurred - response code: {request_status}")
+
+#     # write to model path
+#     with open(os.path.join(root.models_path, root.model_checkpoint), 'wb') as model_file:
+#         file_size = int(ckpt_request.headers.get("Content-Length"))
+#         with tqdm(total=file_size, unit='B', unit_scale=True, desc=root.model_checkpoint) as pbar:
+#             for chunk in ckpt_request.iter_content(chunk_size=1024):
+#                 if chunk:  # filter out keep-alive new chunks
+#                     model_file.write(chunk)
+#                     pbar.update(len(chunk))
+def download_model(model_map, root):
     url = model_map[root.model_checkpoint]['url']
 
     # CLI dialogue to authenticate download
@@ -38,32 +74,34 @@ def download_model(model_map,root):
         print("This model requires an authentication token")
         print("Please ensure you have accepted the terms of service before continuing.")
 
-        username = input("[What is your huggingface username?]: ")
+        # Chỉ yêu cầu token
         token = input("[What is your huggingface token?]: ")
 
+        if not token:
+            raise ValueError("Hugging Face token is required.")
+
         _, path = url.split("https://")
+        url = f"https://{token}@{path}"  # Sử dụng token trong URL mà không cần username
 
-        url = f"https://{username}:{token}@{path}"
-
-    # contact server for model
+    # Contact server for model
     print(f"..attempting to download {root.model_checkpoint}...this may take a while")
-    ckpt_request = requests.get(url,stream=True)
+    ckpt_request = requests.get(url, stream=True)
     request_status = ckpt_request.status_code
 
-    # inform user of errors
+    # Handle errors
     if request_status == 403:
         raise ConnectionRefusedError("You have not accepted the license for this model.")
     elif request_status == 404:
         raise ConnectionError("Could not make contact with server")
     elif request_status != 200:
-        raise ConnectionError(f"Some other error has ocurred - response code: {request_status}")
+        raise ConnectionError(f"Some other error has occurred - response code: {request_status}")
 
-    # write to model path
+    # Save model to disk
     with open(os.path.join(root.models_path, root.model_checkpoint), 'wb') as model_file:
         file_size = int(ckpt_request.headers.get("Content-Length"))
         with tqdm(total=file_size, unit='B', unit_scale=True, desc=root.model_checkpoint) as pbar:
             for chunk in ckpt_request.iter_content(chunk_size=1024):
-                if chunk:  # filter out keep-alive new chunks
+                if chunk:
                     model_file.write(chunk)
                     pbar.update(len(chunk))
 
